@@ -357,3 +357,63 @@ class Solution {
     }
 }
 ```
+#### Practice ####
+#### 1235. Maximum Profit in Job Scheduling ####
+###### 思路 ###### 
+```
+DP + bianry search
+```
+###### 代码 ###### 
+```
+class Solution {
+    class Node {
+        int start, end, pr;
+        public Node (int s, int e, int p) {
+            this.start = s;
+            this.end = e;
+            this.pr = p;
+        }
+    }
+    
+    public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {
+        List<Node> nodes = new ArrayList<>();
+        for (int i = 0; i < profit.length; i++) {
+            nodes.add(new Node(startTime[i], endTime[i], profit[i]));
+        }
+        // sort by end time
+        Collections.sort(nodes, new Comparator<Node>(){
+            public int compare(Node node1, Node node2) {
+                return node1.end - node2.end;
+            }
+        });
+        
+        int[] dp = new int[nodes.size() + 1]; // dp[n]: max profix when n jobs are available
+        for (int i = 1; i < dp.length; i++) {
+            int prev = find(nodes, i - 1);
+            int prevProfit = prev == -1 ? 0 : dp[prev + 1];
+            dp[i] = Math.max(dp[i - 1], prevProfit + nodes.get(i - 1).pr);
+        }
+        return dp[nodes.size()];
+    }
+    
+    private int find(List<Node> nodes, int index) {
+        int l = 0;
+        int r = nodes.size() - 1;
+        while (l + 1 < r) {
+            int mid = l + (r - l) / 2;
+            if (nodes.get(mid).end > nodes.get(index).start) {
+                r = mid;
+            }else {
+                l = mid;
+            }
+        }
+        
+        if (nodes.get(r).end <= nodes.get(index).start) {
+            return r;
+        }else if (nodes.get(l).end <= nodes.get(index).start) {
+            return l;
+        }
+        return -1;
+    }
+}
+```
